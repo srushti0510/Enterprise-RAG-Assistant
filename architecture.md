@@ -22,17 +22,19 @@ K --> L[User Feedback]
 L --> M[SQLite Database]
 M --> N[Analytics API]
 N --> K
+```
 
-System Flow
-User uploads a PDF/DOCX file or enters a website URL.
-Streamlit sends the request to FastAPI.
-FastAPI extracts document text using the document loader.
-Text is split into chunks.
-Chunks are embedded using OpenAI embeddings.
-Embeddings and metadata are stored in ChromaDB.
-User asks a question through Streamlit.
-FastAPI performs hybrid retrieval using vector search and keyword search.
-Retrieved context is passed to GPT-4o-mini.
-The answer is returned to Streamlit.
-User feedback is stored in SQLite.
-Analytics are displayed in the dashboard.
+## System Flow
+
+1. User uploads a PDF/DOCX file or enters a website URL.
+2. Streamlit sends the request to FastAPI.
+3. FastAPI extracts document text using the document loader.
+4. Text is split into chunks.
+5. Chunks are embedded using OpenAI embeddings.
+6. Embeddings and metadata are stored in ChromaDB.
+7. User asks a question through Streamlit.
+8. FastAPI performs hybrid retrieval using vector search and keyword search.
+9. Retrieved context is passed to GPT-4o-mini.
+10. The answer is returned to Streamlit.
+11. User feedback is stored in SQLite.
+12. Analytics are displayed in the dashboard.

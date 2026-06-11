@@ -3,43 +3,68 @@
 ```mermaid
 flowchart TD
 
-A[PDF / DOCX / Website URL] --> B[FastAPI Backend]
+U[User]
 
-B --> C[Document Loader]
-C --> D[Text Chunking]
-D --> E[OpenAI Embeddings]
-E --> F[ChromaDB Vector Store]
+U --> S[Streamlit Frontend]
 
-F --> G[Hybrid Retrieval]
-G --> H[Vector Search + Keyword Search]
-H --> I[GPT-4o-mini]
-I --> J[Answer with Sources]
+S --> F[FastAPI Backend]
 
-K[Streamlit UI] --> B
-J --> K
+F --> DL[Document Loader]
+DL --> TC[Text Chunking]
+TC --> EMB[OpenAI Embeddings]
+EMB --> VS[ChromaDB Vector Store]
 
-K --> L[User Feedback]
-L --> M[SQLite Database]
-M --> N[Analytics API]
-N --> K
+S --> Q[User Question]
+Q --> F
+
+F --> HR[Hybrid Retrieval]
+HR --> VS[Vector Search]
+HR --> KS[Keyword Search]
+
+VS --> GPT[GPT-4o-mini]
+KS --> GPT
+
+GPT --> A[Generated Answer]
+A --> S
+
+S --> FB[User Feedback]
+FB --> SQL[SQLite Database]
+
+SQL --> AN[Analytics Dashboard]
+AN --> S
 ```
 
 ## Deployment Architecture
 
 ```text
-User
- │
- ▼
-Streamlit Frontend (Docker)
- │
- ▼
-FastAPI Backend (Docker)
- │
- ├── OpenAI API
- │
- ├── ChromaDB
- │
- └── SQLite Analytics
+                ┌─────────────────┐
+                │      User       │
+                └────────┬────────┘
+                         │
+                         ▼
+                ┌─────────────────┐
+                │ Streamlit UI    │
+                │ Docker Service  │
+                └────────┬────────┘
+                         │ HTTP
+                         ▼
+                ┌─────────────────┐
+                │ FastAPI Backend │
+                │ Docker Service  │
+                └─────┬─────┬─────┘
+                      │     │
+          ┌───────────┘     └───────────┐
+          ▼                             ▼
+   ┌─────────────┐               ┌─────────────┐
+   │ ChromaDB    │               │ SQLite      │
+   │ Vector DB   │               │ Analytics   │
+   └─────────────┘               └─────────────┘
+                 \
+                  \
+                   ▼
+            ┌─────────────┐
+            │ OpenAI API  │
+            └─────────────┘
 ```
 
 ## System Flow

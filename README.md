@@ -164,6 +164,8 @@ Enterprise-RAG-Assistant/
 │
 ├── chroma_db/
 │
+├── Dockerfile
+├── docker-compose.yml
 ├── architecture.md
 ├── README.md
 ├── requirements.txt

@@ -2,7 +2,7 @@
 
 An enterprise-grade Retrieval-Augmented Generation (RAG) application that enables users to upload PDF/DOCX documents or ingest website URLs, ask natural language questions, and receive context-aware answers powered by OpenAI and ChromaDB.
 
-The application follows a production-style architecture with a FastAPI backend, Streamlit frontend, vector database, hybrid retrieval, and analytics dashboard.
+The application follows a modular, production-inspired architecture featuring a FastAPI backend, Streamlit frontend, hybrid retrieval pipeline, vector database, conversation memory, and analytics dashboard.
 
 ---
 
@@ -28,11 +28,26 @@ The application follows a production-style architecture with a FastAPI backend, 
 
 - FastAPI backend APIs
 - Streamlit frontend
+- Chat-style interface
+- Conversation memory
 - Source-aware responses
+- Source citations
 - Duplicate document detection
 - Feedback collection
 - Analytics dashboard
 - SQLite feedback storage
+- Dockerized deployment
+
+---
+## Key Highlights
+
+- Built an end-to-end RAG system using OpenAI, ChromaDB, FastAPI, and Streamlit
+- Implemented hybrid retrieval combining semantic search and keyword matching
+- Added support for PDF, DOCX, and Website URL ingestion
+- Developed chat-style conversation memory for follow-up questions
+- Built analytics dashboard with SQLite-backed feedback tracking
+- Containerized the entire application using Docker and Docker Compose
+- Designed a modular backend architecture for scalability and maintainability
 
 ---
 
@@ -147,29 +162,32 @@ For production systems, PostgreSQL would be preferred.
 ```text
 Enterprise-RAG-Assistant/
 │
-├── app.py
+├── app.py                         # Streamlit frontend
 │
 ├── backend/
 │   ├── __init__.py
-│   └── main.py
+│   └── main.py                    # FastAPI backend APIs
 │
 ├── services/
 │   ├── __init__.py
-│   ├── document_loader.py
-│   ├── url_loader.py
-│   ├── vector_store.py
-│   ├── rag_pipeline.py
-│   ├── feedback_db.py
-│   └── analytics.py
+│   ├── document_loader.py         # PDF/DOCX ingestion
+│   ├── url_loader.py              # Website content ingestion
+│   ├── vector_store.py            # ChromaDB + embeddings
+│   ├── rag_pipeline.py            # Retrieval + answer generation
+│   ├── conversation_memory.py     # Session conversation history
+│   ├── feedback_db.py             # Feedback persistence
+│   └── analytics.py               # Analytics dashboard logic
 │
-├── chroma_db/
+├── chroma_db/                     # Persistent vector database
 │
-├── Dockerfile
-├── docker-compose.yml
+├── Dockerfile                     # Application container
+├── docker-compose.yml             # Multi-container deployment
+├── .gitignore
+├── .dockerignore
+│
 ├── architecture.md
 ├── README.md
-├── requirements.txt
-└── .env
+└── requirements.txt
 ```
 
 ---
@@ -330,9 +348,36 @@ streamlit run app.py
 
 ---
 
+## Example Evaluation
+
+### Document
+
+Loan_Sanction_Letter.pdf
+
+### Question
+
+```text
+What is the repayment period?
+```
+
+### Answer
+
+```text
+The repayment period is 180 months after the completion of the moratorium period.
+```
+
+### Source
+
+```text
+Loan_Sanction_Letter.pdf – Page 1
+```
+
+This demonstrates grounded retrieval and source attribution.
+
 ## Future Roadmap
 
-- Cloud Deployment (AWS/Azure/GCP)
+- Retrieval evaluation framework
+- Reranking models
 - User Authentication
 - Role-Based Access Control
 - Citation Highlighting

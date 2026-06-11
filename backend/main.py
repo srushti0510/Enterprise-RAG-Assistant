@@ -6,18 +6,27 @@ from services.vector_store import collection, store_document
 from services.document_loader import load_source
 from services.analytics import get_feedback_summary
 from services.feedback_db import init_feedback_db
+from services.conversation_memory import (
+    init_conversation_db,
+    get_recent_conversation,
+    save_conversation_turn
+)
 
 
 app = FastAPI(
     title="Enterprise Knowledge Assistant API",
     version="1.0.0"
 )
+
+
 init_feedback_db()
+init_conversation_db()
 
 
 class AskRequest(BaseModel):
     question: str
     sources: list[str] = []
+    session_id: str = "default"
 
 
 class URLUploadRequest(BaseModel):
@@ -73,14 +82,30 @@ def upload_file(file: UploadFile = File(...)):
 
 @app.post("/ask")
 def ask_question(request: AskRequest):
+    conversation_memory = get_recent_conversation(
+        session_id=request.session_id,
+        limit=5
+    )
+
     answer, results = generate_answer(
         question=request.question,
-        sources=request.sources
+        sources=request.sources,
+        conversation_memory=conversation_memory
+    )
+
+    source_label = ", ".join(request.sources) if request.sources else "all_sources"
+
+    save_conversation_turn(
+        session_id=request.session_id,
+        source=source_label,
+        question=request.question,
+        answer=answer
     )
 
     return {
         "answer": answer,
-        "sources_used": len(results["documents"][0])
+        "sources_used": len(results["documents"][0]),
+        "memory_used": bool(conversation_memory)
     }
 
 

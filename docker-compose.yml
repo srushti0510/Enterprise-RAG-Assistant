@@ -7,6 +7,13 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    volumes:
+      - ./feedback.db:/app/feedback.db
+    environment:
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - ALL_PROXY=
+      - NO_PROXY=
 
   frontend:
     build: .
@@ -16,5 +23,12 @@ services:
       - "8501:8501"
     env_file:
       - .env
+    volumes:
+      - ./feedback.db:/app/feedback.db
+    environment:
+      - HTTP_PROXY=
+      - HTTPS_PROXY=
+      - ALL_PROXY=
+      - NO_PROXY=
     depends_on:
       - backend

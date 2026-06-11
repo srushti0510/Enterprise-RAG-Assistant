@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import uuid
 
 API_BASE_URL = "http://backend:8000"
 
@@ -52,6 +53,12 @@ if "current_chat" not in st.session_state:
 if "uploaded_files" not in st.session_state:
     st.session_state.uploaded_files = []
 
+if "session_id" not in st.session_state:
+    st.session_state.session_id = str(uuid.uuid4())
+
+if "feedback_given" not in st.session_state:
+    st.session_state.feedback_given = {}
+
 
 input_type = st.radio(
     "Choose Source",
@@ -89,6 +96,10 @@ if uploaded_files:
                     files=files
                 )
 
+                if response.status_code != 200:
+                    st.error(response.text)
+                    st.stop()
+
                 data = response.json()
                 chunks_count = data["chunks_stored"]
 
@@ -125,21 +136,67 @@ if input_type == "Website URL":
                 st.success(f"Website processed. Stored {chunks_count} chunks.")
 
 if st.session_state.uploaded_files:
-    st.subheader("Knowledge Base Documents")
-    for file_name in st.session_state.uploaded_files:
-        st.write(f"• {file_name}")
+    with st.expander("Knowledge Base Documents", expanded=False):
+        for file_name in st.session_state.uploaded_files:
+            st.write(f"• {file_name}")
 
 st.divider()
 
 
-question = st.text_input(
-    "Ask a question across the uploaded knowledge base"
-)
+st.subheader("Chat with your Knowledge Base")
 
-if st.button("Generate Answer"):
-    if not question.strip():
-        st.warning("Please enter a question.")
-    elif not st.session_state.uploaded_files:
+if not st.session_state.chat_history and not st.session_state.current_chat:
+    st.info("Ask a question about your uploaded documents to begin chatting.")
+
+for chat in st.session_state.chat_history:
+    with st.chat_message("user"):
+        st.write(chat["question"])
+
+    with st.chat_message("assistant"):
+        st.write(chat["answer"])
+
+if st.session_state.current_chat:
+    with st.chat_message("user"):
+        st.write(st.session_state.current_chat["question"])
+
+    with st.chat_message("assistant"):
+        st.write(st.session_state.current_chat["answer"])
+
+        question_key = st.session_state.current_chat["question"]
+
+        if st.session_state.feedback_given.get(question_key):
+            st.success("✓ Feedback received")
+        else:
+            st.caption("Was this answer helpful?")
+
+            col1, col2, col3 = st.columns([1, 1, 8])
+
+            with col1:
+                if st.button("👍", key="helpful_current"):
+                    save_feedback(
+                        st.session_state.current_chat["question"],
+                        st.session_state.current_chat["answer"],
+                        "Helpful"
+                    )
+                    st.session_state.feedback_given[question_key] = True
+                    st.toast("Feedback saved.")
+                    st.rerun()
+
+            with col2:
+                if st.button("👎", key="not_helpful_current"):
+                    save_feedback(
+                        st.session_state.current_chat["question"],
+                        st.session_state.current_chat["answer"],
+                        "Not Helpful"
+                    )
+                    st.session_state.feedback_given[question_key] = True
+                    st.toast("Feedback saved.")
+                    st.rerun()
+
+question = st.chat_input("Ask a question about your uploaded documents...")
+
+if question:
+    if not st.session_state.uploaded_files:
         st.warning("Please upload and process at least one document first.")
     else:
         if st.session_state.current_chat is not None:
@@ -150,134 +207,41 @@ if st.button("Generate Answer"):
                 f"{API_BASE_URL}/ask",
                 json={
                     "question": question,
-                    "sources": st.session_state.uploaded_files
+                    "sources": st.session_state.uploaded_files,
+                    "session_id": st.session_state.session_id
                 }
             )
 
             data = response.json()
 
             answer = data["answer"]
-            results = None
 
         st.session_state.current_chat = {
             "question": question,
             "answer": answer,
-            "results": results
+            "results": None
         }
 
+        st.rerun()
 
-if st.session_state.current_chat:
-    st.subheader("Answer")
-
-    with st.chat_message("user"):
-        st.write(st.session_state.current_chat["question"])
-
-    with st.chat_message("assistant"):
-        st.write(st.session_state.current_chat["answer"])
-
-        st.caption("Was this answer helpful?")
-
-        col1, col2, col3 = st.columns([1, 1, 8])
-
-        with col1:
-            if st.button("👍", key="helpful_current"):
-                save_feedback(
-                    st.session_state.current_chat["question"],
-                    st.session_state.current_chat["answer"],
-                    "Helpful"
-                )
-                st.toast("Feedback saved.")
-
-        with col2:
-            if st.button("👎", key="not_helpful_current"):
-                save_feedback(
-                    st.session_state.current_chat["question"],
-                    st.session_state.current_chat["answer"],
-                    "Not Helpful"
-                )
-                st.toast("Feedback saved.")
-
-        sources_used = get_unique_sources(st.session_state.current_chat["results"])
-
-        if sources_used:
-            with st.expander("Sources Used"):
-                for i, item in enumerate(sources_used, start=1):
-                    if item["page"] == "N/A":
-                        st.write(f"{i}. {item['source']}")
-                    else:
-                        st.write(f"{i}. {item['source']} — Page {item['page']}")
-
-        if DEBUG_MODE:
-            with st.expander("Retrieved Chunks Debug"):
-                documents = st.session_state.current_chat["results"]["documents"][0]
-                metadatas = st.session_state.current_chat["results"]["metadatas"][0]
-
-                for i, doc in enumerate(documents):
-                    st.write(
-                        f"Source: {metadatas[i]['source']} | Page: {metadatas[i].get('page', 'N/A')} | Chunk: {metadatas[i]['chunk']}"
-                    )
-                    st.write(doc[:1000])
-                    st.divider()
-
-
-if st.session_state.chat_history:
-    st.subheader("Previous Chat History")
-
-    for chat in reversed(st.session_state.chat_history):
-        with st.chat_message("user"):
-            st.write(chat["question"])
-
-        with st.chat_message("assistant"):
-            st.write(chat["answer"])
-
-            sources_used = get_unique_sources(chat["results"])
-
-            if sources_used:
-                with st.expander("Sources Used"):
-                    for i, item in enumerate(sources_used, start=1):
-                        if item["page"] == "N/A":
-                            st.write(f"{i}. {item['source']}")
-                        else:
-                            st.write(f"{i}. {item['source']} — Page {item['page']}")
-
-st.divider()
-
-with st.expander("Analytics Dashboard", expanded=False):
+with st.sidebar.expander("Analytics Dashboard", expanded=False):
     response = requests.get(f"{API_BASE_URL}/analytics")
     analytics = response.json()
 
-    col1, col2, col3 = st.columns(3)
-
-    col1.metric(
-        "Total Feedback",
-        analytics["total_feedback"]
-    )
-
-    col2.metric(
-        "Helpful",
-        analytics["helpful"]
-    )
-
-    col3.metric(
-        "Not Helpful",
-        analytics["not_helpful"]
-    )
+    st.metric("Total Feedback", analytics["total_feedback"])
+    st.metric("Helpful", analytics["helpful"])
+    st.metric("Not Helpful", analytics["not_helpful"])
 
     if analytics["total_feedback"] > 0:
-
         helpful_percent = (
-            analytics["helpful"]
-            / analytics["total_feedback"]
+            analytics["helpful"] / analytics["total_feedback"]
         ) * 100
 
-        st.metric(
-            "Helpful Rate",
-            f"{helpful_percent:.1f}%"
-        )
+        st.metric("Helpful Rate", f"{helpful_percent:.1f}%")
 
     st.subheader("Recent Feedback")
 
     st.dataframe(
         analytics["recent_feedback"],
-        use_container_width=True
+        width="stretch"
     )

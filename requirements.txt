@@ -3,7 +3,7 @@ fastapi
 uvicorn
 python-multipart
 
-openai
+openai==1.59.7
 python-dotenv
 
 chromadb

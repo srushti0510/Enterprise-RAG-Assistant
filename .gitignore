@@ -13,6 +13,9 @@ venv/
 # ChromaDB
 chroma_db/
 
+# Conversation Memory DB
+conversation_memory.db
+
 # SQLite
 *.db
 

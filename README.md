@@ -75,6 +75,73 @@ See [architecture.md](architecture.md) for the complete system architecture and 
 
 ---
 
+## Technical Decisions & Tradeoffs
+
+### Why ChromaDB?
+
+ChromaDB was selected because it is lightweight, open-source, and easy to run locally without additional infrastructure.
+
+Tradeoff:
+- Simpler local development
+- Less operational overhead
+
+Alternative considered:
+- Pinecone (managed cloud vector database)
+
+For production-scale deployments, Pinecone or Weaviate could be used.
+
+---
+
+### Why FastAPI + Streamlit?
+
+FastAPI handles API orchestration and backend processing while Streamlit provides a rapid UI for interacting with the knowledge base.
+
+Benefits:
+- Clear separation of frontend and backend concerns
+- Easier deployment and testing
+- Better scalability compared to a single-script architecture
+
+---
+
+### Why Hybrid Retrieval?
+
+Pure vector search can miss exact keyword matches.
+
+Hybrid retrieval combines:
+
+- Semantic similarity search
+- Keyword-based matching
+
+Benefits:
+- Improved answer relevance
+- Better handling of technical terminology
+- Reduced retrieval failures
+
+---
+
+### Why Docker?
+
+Docker ensures consistent execution across environments by packaging:
+
+- Python runtime
+- Dependencies
+- Application code
+
+Benefits:
+- Reproducible builds
+- Easier onboarding
+- Simplified deployment
+
+---
+
+### Why SQLite for Feedback Analytics?
+
+SQLite was selected because it is lightweight and sufficient for storing user feedback and analytics during development.
+
+For production systems, PostgreSQL would be preferred.
+
+---
+
 ## Project Structure
 
 ```text
@@ -184,6 +251,41 @@ OPENAI_API_KEY=your_api_key_here
 
 ---
 
+## Docker Setup
+
+Build and run the application:
+
+```bash
+docker compose up --build
+```
+
+Frontend:
+
+```text
+http://localhost:8501
+```
+
+Backend API:
+
+```text
+http://localhost:8000
+```
+
+Swagger Docs:
+
+```text
+http://localhost:8000/docs
+```
+
+The Docker Compose configuration runs:
+
+- Streamlit Frontend
+- FastAPI Backend
+
+as separate services.
+
+---
+
 ## Running the Application
 
 ### Start FastAPI Backend
@@ -226,16 +328,14 @@ streamlit run app.py
 
 ---
 
-## Future Enhancements
+## Future Roadmap
 
 - Cloud Deployment (AWS/Azure/GCP)
 - User Authentication
 - Role-Based Access Control
-- Conversation Memory
 - Citation Highlighting
 - Multi-Tenant Knowledge Bases
 - Redis Caching
-- Docker Support
 
 ---
 

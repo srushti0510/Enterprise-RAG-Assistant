@@ -24,6 +24,24 @@ M --> N[Analytics API]
 N --> K
 ```
 
+## Deployment Architecture
+
+```text
+User
+ │
+ ▼
+Streamlit Frontend (Docker)
+ │
+ ▼
+FastAPI Backend (Docker)
+ │
+ ├── OpenAI API
+ │
+ ├── ChromaDB
+ │
+ └── SQLite Analytics
+```
+
 ## System Flow
 
 1. User uploads a PDF/DOCX file or enters a website URL.

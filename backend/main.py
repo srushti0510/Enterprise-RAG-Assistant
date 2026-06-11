@@ -5,12 +5,14 @@ from services.rag_pipeline import generate_answer
 from services.vector_store import collection, store_document
 from services.document_loader import load_source
 from services.analytics import get_feedback_summary
+from services.feedback_db import init_feedback_db
 
 
 app = FastAPI(
     title="Enterprise Knowledge Assistant API",
     version="1.0.0"
 )
+init_feedback_db()
 
 
 class AskRequest(BaseModel):

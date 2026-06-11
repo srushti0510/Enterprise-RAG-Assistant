@@ -1,7 +1,7 @@
 import streamlit as st
 import requests
 
-API_BASE_URL = "http://127.0.0.1:8000"
+API_BASE_URL = "http://backend:8000"
 
 from services.feedback_db import init_feedback_db, save_feedback
 

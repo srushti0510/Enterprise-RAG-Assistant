@@ -1,5 +1,7 @@
 # Architecture
 
+## System Architecture
+
 ```mermaid
 flowchart TD
 
@@ -29,7 +31,7 @@ HR --> KSR[Keyword Search]
 VSR --> RC[Retrieved Context]
 KSR --> RC
 
-F --> CM[Conversation Memory]
+S --> CM[Conversation Memory]
 
 RC --> GPT[GPT-4o-mini]
 CM --> GPT
@@ -84,29 +86,51 @@ AN --> S
 ## Evaluation Flow
 
 ```text
-Sample Document
-       │
-       ▼
- Upload & Index
-       │
-       ▼
-    ChromaDB
-
-
-eval_questions.json
-       │
-       ▼
-   run_evals.py
-       │
-       ▼
- FastAPI /ask API
-       │
-       ▼
- Retrieved Answers
-       │
-       ▼
- Pass / Fail Metrics
+                    Sample Document
+                           │
+                           ▼
+                    Upload & Index
+                           │
+                           ▼
+                        ChromaDB
+                           ▲
+                           │
+                eval_questions.json
+                           │
+                           ▼
+                      run_evals.py
+                           │
+                           ▼
+                    FastAPI /ask API
+                           │
+                           ▼
+                    Generated Answers
+                           │
+                           ▼
+                    Pass / Fail Metrics
 ```
+
+---
+
+## Evaluation Components
+
+The project includes an automated evaluation framework for validating retrieval quality and answer correctness.
+
+Components:
+
+- `evals/eval_questions.json`
+  - Benchmark questions and expected keywords
+
+- `evals/run_evals.py`
+  - Automated evaluation runner
+
+- Sample benchmark documents
+  - Used to validate retrieval behavior
+
+- Pass/Fail scoring
+  - Verifies answer quality automatically
+
+This framework helps detect retrieval regressions when making future changes to the RAG pipeline.
 
 ---
 
@@ -135,24 +159,24 @@ The system uses a hybrid retrieval architecture to improve answer quality and re
 
 ### Semantic Retrieval
 
-* OpenAI Embeddings (`text-embedding-3-small`)
-* ChromaDB vector similarity search
+- OpenAI Embeddings (`text-embedding-3-small`)
+- ChromaDB vector similarity search
 
 Benefits:
 
-* Understands semantic meaning
-* Handles paraphrased questions
-* Retrieves contextually relevant chunks
+- Understands semantic meaning
+- Handles paraphrased questions
+- Retrieves contextually relevant chunks
 
 ### Keyword Retrieval
 
-* Exact keyword matching across indexed chunks
+- Exact keyword matching across indexed chunks
 
 Benefits:
 
-* Captures technical terms
-* Handles IDs, names, and document-specific phrases
-* Improves precision for structured documents
+- Captures technical terms
+- Handles IDs, names, and document-specific phrases
+- Improves precision for structured documents
 
 ### Hybrid Search Workflow
 

@@ -51,6 +51,25 @@ The application follows a modular, production-inspired architecture featuring a 
 
 ---
 
+## Evaluation Framework
+
+To measure retrieval and answer quality, the project includes an automated evaluation framework.
+
+### Components
+
+- Benchmark evaluation dataset
+- Automated question execution
+- Expected answer validation
+- Pass/Fail scoring
+- Retrieval regression testing
+
+### Running Evaluations
+
+```bash
+python evals/run_evals.py
+```
+---
+
 ## Architecture
 
 See [architecture.md](architecture.md) for the complete system architecture and workflow.
@@ -162,26 +181,33 @@ For production systems, PostgreSQL would be preferred.
 ```text
 Enterprise-RAG-Assistant/
 │
-├── app.py                         # Streamlit frontend
+├── app.py
 │
 ├── backend/
 │   ├── __init__.py
-│   └── main.py                    # FastAPI backend APIs
+│   └── main.py
 │
 ├── services/
 │   ├── __init__.py
-│   ├── document_loader.py         # PDF/DOCX ingestion
-│   ├── url_loader.py              # Website content ingestion
-│   ├── vector_store.py            # ChromaDB + embeddings
-│   ├── rag_pipeline.py            # Retrieval + answer generation
-│   ├── conversation_memory.py     # Session conversation history
-│   ├── feedback_db.py             # Feedback persistence
-│   └── analytics.py               # Analytics dashboard logic
+│   ├── document_loader.py
+│   ├── url_loader.py
+│   ├── vector_store.py
+│   ├── rag_pipeline.py
+│   ├── conversation_memory.py
+│   ├── feedback_db.py
+│   └── analytics.py
 │
-├── chroma_db/                     # Persistent vector database
+├── data/
+│   └── sample_doc.docx
 │
-├── Dockerfile                     # Application container
-├── docker-compose.yml             # Multi-container deployment
+├── evals/
+│   ├── eval_questions.json
+│   └── run_evals.py
+│
+├── chroma_db/
+│
+├── Dockerfile
+├── docker-compose.yml
 ├── .gitignore
 ├── .dockerignore
 │
@@ -352,37 +378,57 @@ streamlit run app.py
 
 ### Document
 
-Loan_Sanction_Letter.pdf
+sample_doc.docx
 
 ### Question
 
 ```text
-What is the repayment period?
+How many days per week can employees work remotely?
 ```
 
 ### Answer
 
 ```text
-The repayment period is 180 months after the completion of the moratorium period.
+Employees may work remotely up to 3 days per week with manager approval.
 ```
 
 ### Source
 
 ```text
-Loan_Sanction_Letter.pdf – Page 1
+sample_doc.docx – Page 1
 ```
 
-This demonstrates grounded retrieval and source attribution.
+This demonstrates grounded retrieval, source attribution, and natural language question answering over uploaded documents.
+
+---
+
+## Evaluation Results
+
+The automated evaluation framework was tested using benchmark enterprise-policy questions.
+
+```text
+Evaluation Results: 3/3 Passed
+```
+
+The evaluation verifies:
+
+- Retrieval accuracy
+- Context grounding
+- Answer correctness
+- Source attribution
+
+---
 
 ## Future Roadmap
 
-- Retrieval evaluation framework
-- Reranking models
+- Reranking models (Cross Encoder)
 - User Authentication
 - Role-Based Access Control
 - Citation Highlighting
 - Multi-Tenant Knowledge Bases
 - Redis Caching
+- PostgreSQL Analytics Storage
+- Cloud Deployment (AWS/Azure/GCP)
 
 ---
 

@@ -26,10 +26,13 @@ F --> HR[Hybrid Retrieval]
 HR --> VSR[Vector Search]
 HR --> KSR[Keyword Search]
 
-VSR --> CM[Conversation Memory]
-KSR --> CM
+VSR --> RC[Retrieved Context]
+KSR --> RC
 
-CM --> GPT[GPT-4o-mini]
+F --> CM[Conversation Memory]
+
+RC --> GPT[GPT-4o-mini]
+CM --> GPT
 
 GPT --> A[Generated Answer]
 A --> S
@@ -74,6 +77,35 @@ AN --> S
                       │
                       ▼
                  OpenAI API
+```
+
+---
+
+## Evaluation Flow
+
+```text
+Sample Document
+       │
+       ▼
+ Upload & Index
+       │
+       ▼
+    ChromaDB
+
+
+eval_questions.json
+       │
+       ▼
+   run_evals.py
+       │
+       ▼
+ FastAPI /ask API
+       │
+       ▼
+ Retrieved Answers
+       │
+       ▼
+ Pass / Fail Metrics
 ```
 
 ---

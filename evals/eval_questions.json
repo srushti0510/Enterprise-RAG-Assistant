@@ -2,16 +2,16 @@
   {
     "question": "How many days per week can employees work remotely?",
     "expected_keywords": ["3 days", "manager approval"],
-    "source": "Employee Remote Work Policy.docx"
+    "source": "sample_doc.docx"
   },
   {
     "question": "What is the annual learning budget?",
     "expected_keywords": ["$1,500", "employee"],
-    "source": "Employee Remote Work Policy.docx"
+    "source": "sample_doc.docx"
   },
   {
     "question": "How often must employees complete security training?",
     "expected_keywords": ["12 months", "security training"],
-    "source": "Employee Remote Work Policy.docx"
+    "source": "sample_doc.docx"
   }
 ]

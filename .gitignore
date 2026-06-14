@@ -6,6 +6,16 @@ __pycache__/
 # Virtual Environment
 .venv/
 venv/
+env/
+
+Lib/
+Scripts/
+Include/
+include/
+share/
+
+pyvenv.cfg
+CACHEDIR.TAG
 
 # Environment Variables
 .env
@@ -13,11 +23,9 @@ venv/
 # ChromaDB
 chroma_db/
 
-# Conversation Memory DB
-conversation_memory.db
-
 # SQLite
 *.db
+conversation_memory.db
 
 # IDE
 .vscode/
@@ -27,7 +35,10 @@ conversation_memory.db
 .DS_Store
 Thumbs.db
 
-Lib/
-Scripts/
-pyvenv.cfg
-CACHEDIR.TAG
+# Build / Packaging
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log

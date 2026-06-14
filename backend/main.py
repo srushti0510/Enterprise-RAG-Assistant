@@ -1,7 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
-
-from services.rag_pipeline import generate_answer
+from services.langgraph_agent import run_langgraph_agent
 from services.vector_store import collection, store_document
 from services.document_loader import load_source
 from services.analytics import get_feedback_summary
@@ -87,7 +86,7 @@ def ask_question(request: AskRequest):
         limit=5
     )
 
-    answer, results = generate_answer(
+    answer, results, intent = run_langgraph_agent(
         question=request.question,
         sources=request.sources,
         conversation_memory=conversation_memory
@@ -105,7 +104,8 @@ def ask_question(request: AskRequest):
     return {
         "answer": answer,
         "sources_used": len(results["documents"][0]),
-        "memory_used": bool(conversation_memory)
+        "memory_used": bool(conversation_memory),
+        "intent": intent
     }
 
 

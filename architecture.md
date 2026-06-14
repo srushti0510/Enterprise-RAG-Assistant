@@ -33,8 +33,18 @@ KSR --> RC
 
 S --> CM[Conversation Memory]
 
-RC --> GPT[GPT-4o-mini]
-CM --> GPT
+RC --> LG[LangGraph Router]
+CM --> LG
+
+LG --> QA[QA Workflow]
+LG --> SUM[Summarization Workflow]
+LG --> CMP[Comparison Workflow]
+
+QA --> LC[LangChain]
+SUM --> LC
+CMP --> LC
+
+LC --> GPT[GPT-4o-mini]
 
 GPT --> A[Generated Answer]
 A --> S
@@ -112,25 +122,28 @@ AN --> S
 
 ---
 
-## Evaluation Components
+## Sample Evaluation Framework
 
-The project includes an automated evaluation framework for validating retrieval quality and answer correctness.
+The project includes a lightweight evaluation framework for validating retrieval and answer generation behavior.
 
 Components:
 
 - `evals/eval_questions.json`
-  - Benchmark questions and expected keywords
+  - Sample benchmark questions and expected keywords
 
 - `evals/run_evals.py`
   - Automated evaluation runner
 
-- Sample benchmark documents
+- Sample documents
   - Used to validate retrieval behavior
 
-- Pass/Fail scoring
-  - Verifies answer quality automatically
+The evaluation framework helps verify that changes to the retrieval pipeline continue to produce expected answers for known test cases.
 
-This framework helps detect retrieval regressions when making future changes to the RAG pipeline.
+Current benchmark result:
+
+```text
+3/3 Questions Passed
+```
 
 ---
 
@@ -142,14 +155,19 @@ This framework helps detect retrieval regressions when making future changes to 
 4. Content is split into chunks.
 5. Chunks are converted into embeddings using OpenAI Embeddings.
 6. Embeddings and metadata are stored in ChromaDB.
-7. User submits a question through the chat interface.
+7. User submits a query through the chat interface.
 8. FastAPI performs hybrid retrieval using both vector search and keyword search.
 9. Retrieved context is combined with conversation memory.
-10. GPT-4o-mini generates a grounded response using retrieved context.
-11. The answer is returned to Streamlit with source citations.
-12. Users can provide feedback on generated responses.
-13. Feedback is stored in SQLite.
-14. Analytics are displayed through the dashboard.
+10. LangGraph routes the request to the appropriate workflow:
+    - Question Answering
+    - Document Summarization
+    - Document Comparison
+11. LangChain constructs the prompt and orchestrates the LLM call.
+12. GPT-4o-mini generates a grounded response using retrieved context.
+13. The answer is returned to Streamlit.
+14. Users can provide feedback on generated responses.
+15. Feedback is stored in SQLite.
+16. Analytics are displayed through the dashboard.
 
 ---
 
@@ -183,7 +201,54 @@ Benefits:
 1. Execute vector similarity search.
 2. Execute keyword search.
 3. Merge and deduplicate results.
-4. Pass retrieved context to GPT-4o-mini.
-5. Generate a source-grounded answer.
+4. Pass retrieved context and conversation memory to LangGraph.
+5. Route the request to the appropriate workflow:
+   - Question Answering
+   - Document Summarization
+   - Document Comparison
+6. Use LangChain to build the prompt and invoke GPT-4o-mini.
+7. Generate a source-grounded response.
 
-This approach provides better accuracy than relying solely on vector search or keyword search alone.
+This approach provides better accuracy than relying solely on vector search or keyword search alone and enables agentic workflow routing on top of the RAG pipeline.
+
+---
+
+## Agentic Workflow
+
+The application uses LangGraph to route user requests into specialized workflows instead of treating every request as a simple question-answering task.
+
+### Supported Workflows
+
+#### Question Answering
+
+Handles factual questions grounded in uploaded documents.
+
+Examples:
+
+- What is the repayment period?
+- What is the interest rate?
+
+#### Document Summarization
+
+Generates summaries of uploaded documents.
+
+Examples:
+
+- Summarize this document.
+- Give me a brief overview.
+
+#### Document Comparison
+
+Compares information across one or more uploaded documents.
+
+Examples:
+
+- Compare repayment period and moratorium period.
+- Compare the uploaded documents.
+
+### Benefits
+
+- Supports multiple document interaction patterns
+- Keeps workflow logic modular
+- Makes the RAG system easier to extend
+- Provides a foundation for future tool-using agents

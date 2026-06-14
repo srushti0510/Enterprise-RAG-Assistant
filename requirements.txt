@@ -17,3 +17,9 @@ requests
 langchain-text-splitters
 
 pandas
+
+langchain
+langchain-openai
+langchain-community
+
+langgraph

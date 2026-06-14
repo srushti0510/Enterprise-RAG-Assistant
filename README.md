@@ -22,6 +22,9 @@ The application follows a modular, production-inspired architecture featuring a 
 - Hybrid Retrieval
   - Semantic Vector Search
   - Keyword Search
+- LangChain Prompt Templates
+- LangChain Output Parsing
+- LangGraph Agent Workflow
 - GPT-4o-mini answer generation
 
 ### Enterprise Features
@@ -41,7 +44,8 @@ The application follows a modular, production-inspired architecture featuring a 
 ---
 ## Key Highlights
 
-- Built an end-to-end RAG system using OpenAI, ChromaDB, FastAPI, and Streamlit
+- Built an Agentic Retrieval-Augmented Generation (RAG) system using LangChain, LangGraph, OpenAI, ChromaDB, FastAPI, and Streamlit
+- Developed LangGraph-based workflow routing for question answering, document summarization, and comparison tasks
 - Implemented hybrid retrieval combining semantic search and keyword matching
 - Added support for PDF, DOCX, and Website URL ingestion
 - Developed chat-style conversation memory for follow-up questions
@@ -153,6 +157,24 @@ Benefits:
 
 ---
 
+### Why LangGraph?
+
+Traditional RAG systems follow a single retrieval and answer generation path.
+
+LangGraph was introduced to enable agentic workflows where the system can route user requests to specialized execution paths such as:
+
+- Question Answering
+- Document Summarization
+- Document Comparison
+
+Benefits:
+
+- More flexible task handling
+- Cleaner workflow orchestration
+- Easier future expansion into tool-using agents
+
+---
+
 ### Why Docker?
 
 Docker ensures consistent execution across environments by packaging:
@@ -195,8 +217,10 @@ Enterprise-RAG-Assistant/
 │   ├── rag_pipeline.py
 │   ├── conversation_memory.py
 │   ├── feedback_db.py
-│   └── analytics.py
-│
+│   ├── analytics.py
+│   ├── langgraph_agent.py
+│   └── langchain_rag_pipeline.py
+│ 
 ├── data/
 │   └── sample_doc.docx
 │
@@ -363,14 +387,22 @@ streamlit run app.py
 ## Example Workflow
 
 1. Upload a PDF/DOCX document or enter a website URL.
-2. FastAPI processes the content.
-3. Text is chunked and embedded.
+2. FastAPI processes and extracts the content.
+3. Text is chunked and converted into embeddings.
 4. Embeddings are stored in ChromaDB.
-5. Ask questions through the Streamlit interface.
-6. Hybrid retrieval fetches relevant context.
-7. GPT-4o-mini generates answers.
-8. User feedback is stored in SQLite.
-9. Analytics dashboard displays usage metrics.
+5. User submits a query through the Streamlit interface.
+6. Hybrid retrieval performs:
+   - Semantic Vector Search
+   - Keyword Search
+7. LangGraph routes the request to the appropriate workflow:
+   - Question Answering
+   - Document Summarization
+   - Document Comparison
+8. LangChain constructs the prompt and orchestrates the LLM call.
+9. GPT-4o-mini generates a grounded response using retrieved context.
+10. Conversation memory is used to support follow-up questions.
+11. User feedback is stored in SQLite.
+12. Analytics dashboard tracks feedback and usage metrics.
 
 ---
 
@@ -421,7 +453,10 @@ The evaluation verifies:
 
 ## Future Roadmap
 
-- Reranking models (Cross Encoder)
+- Tool-using Agents
+- Web Search Integration
+- Multi-Agent Collaboration
+- Automated RAG Evaluation
 - User Authentication
 - Role-Based Access Control
 - Citation Highlighting

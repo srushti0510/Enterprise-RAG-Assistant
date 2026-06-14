@@ -157,6 +157,25 @@ Benefits:
 
 ---
 
+### Why LangChain?
+
+LangChain was added to structure the RAG pipeline around reusable prompt templates, LLM orchestration, and output parsing.
+
+Instead of manually building prompts and directly calling the OpenAI API, LangChain provides a cleaner abstraction for:
+
+- Prompt template management
+- LLM invocation
+- Output parsing
+- Chain composition
+
+Benefits:
+
+- Cleaner and more maintainable RAG pipeline
+- Easier prompt iteration
+- Better separation between retrieval, prompting, and answer generation
+- Easier future integration with tools, agents, and evaluators
+---
+
 ### Why LangGraph?
 
 Traditional RAG systems follow a single retrieval and answer generation path.
